@@ -13,18 +13,15 @@
       "model": "song",
       "via": "review"
     },
-    "slug": {
-      "type": "uid"
-    },
-    "Introduction": {
+    "introduction": {
       "type": "text",
       "required": true
     },
-    "Like": {
+    "like": {
       "type": "text",
       "required": true
     },
-    "DontLike": {
+    "dontLike": {
       "type": "text",
       "required": true
     },
@@ -32,11 +29,11 @@
       "type": "text",
       "required": true
     },
-    "ForFansOf": {
+    "forfansof": {
       "type": "text",
       "required": true
     },
-    "ShouldTheyListenMore": {
+    "shouldtheylistenmore": {
       "type": "text",
       "required": true
     }
