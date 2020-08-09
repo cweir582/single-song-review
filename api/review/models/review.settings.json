@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "reviews",
+  "info": {
+    "name": "review"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "song": {
+      "model": "song",
+      "via": "review"
+    },
+    "slug": {
+      "type": "uid"
+    },
+    "Introduction": {
+      "type": "text",
+      "required": true
+    },
+    "Like": {
+      "type": "text",
+      "required": true
+    },
+    "DontLike": {
+      "type": "text",
+      "required": true
+    },
+    "opinion": {
+      "type": "text",
+      "required": true
+    },
+    "ForFansOf": {
+      "type": "text",
+      "required": true
+    },
+    "ShouldTheyListenMore": {
+      "type": "text",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "songs",
+  "info": {
+    "name": "Song"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "song_name": {
+      "type": "string",
+      "required": true,
+      "unique": false
+    },
+    "artist_name": {
+      "type": "string",
+      "required": true
+    },
+    "streaming_link": {
+      "type": "string"
+    },
+    "press_photo": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": true
+    },
+    "contact_email": {
+      "type": "email",
+      "required": true
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "review": {
+      "via": "song",
+      "model": "review"
+    }
+  }
+}
