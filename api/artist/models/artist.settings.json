@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "artists",
+  "info": {
+    "name": "artist"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "artist": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "songs": {
+      "collection": "song",
+      "via": "artistId"
+    },
+    "referral": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "referred": {
+      "type": "integer"
+    }
+  }
+}

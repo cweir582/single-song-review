@@ -42,6 +42,10 @@
     "review": {
       "via": "song",
       "model": "review"
+    },
+    "artistId": {
+      "via": "songs",
+      "model": "artist"
     }
   }
 }
