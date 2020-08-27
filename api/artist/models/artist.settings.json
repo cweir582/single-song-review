@@ -25,6 +25,12 @@
     },
     "referred": {
       "type": "integer"
+    },
+    "email": {
+      "type": "email"
+    },
+    "confirm": {
+      "type": "boolean"
     }
   }
 }

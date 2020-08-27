@@ -25,6 +25,14 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/artists/referral/:token",
+      "handler": "artist.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "POST",
       "path": "/artists",
       "handler": "artist.create",

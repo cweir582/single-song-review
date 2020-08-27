@@ -9,19 +9,12 @@ const { parseMultipartData, sanitizeEntity } = require('strapi-utils');
 
 module.exports = {
 
-  async create(ctx) {
-    console.log("Here")
-    let entity;
-    if (ctx.is('multipart')) {
-      const { data, files } = parseMultipartData(ctx);
-      console.log("there", data)
-      entity = await strapi.services.artist.create(data, { files });
-    } else {
-      console.log(ctx.request.body)
-      const artists = ctx.request.body.artist;
-      ctx.request.body.referral = artists.slice(0, 3) + crypto.randomBytes(6).toString('hex');
-      entity = await strapi.services.artist.create(ctx.request.body);
-    }
+  async findOne(ctx) {
+    const { token } = ctx.params;
+
+    console.log(token);
+
+    const entity = await strapi.services.artist.findOne({ referral: token	});
     return sanitizeEntity(entity, { model: strapi.models.artist });
   },
 };
