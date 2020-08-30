@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/access-token",
+      "handler": "access-token.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/access-token",
+      "handler": "access-token.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/access-token",
+      "handler": "access-token.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

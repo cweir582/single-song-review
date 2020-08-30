@@ -10,7 +10,8 @@
   },
   "attributes": {
     "email": {
-      "type": "email"
+      "type": "email",
+      "unique": true
     },
     "hellreview": {
       "type": "boolean",

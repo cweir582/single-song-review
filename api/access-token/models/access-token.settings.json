@@ -1,0 +1,16 @@
+{
+  "kind": "singleType",
+  "collectionName": "access_tokens",
+  "info": {
+    "name": "accessToken"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "token": {
+      "type": "string"
+    }
+  }
+}
