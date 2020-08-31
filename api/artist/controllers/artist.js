@@ -9,7 +9,7 @@ const { parseMultipartData, sanitizeEntity } = require('strapi-utils');
 
 module.exports = {
 
-  async findOne(ctx) {
+  async referral(ctx) {
     const { token } = ctx.params;
 
     console.log(token);

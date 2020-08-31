@@ -27,7 +27,7 @@
     {
       "method": "GET",
       "path": "/artists/referral/:token",
-      "handler": "artist.findOne",
+      "handler": "artist.referral",
       "config": {
         "policies": []
       }
