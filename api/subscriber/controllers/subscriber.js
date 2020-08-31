@@ -6,11 +6,15 @@ let errorCount = 0;
 async function subscribe(email, token) {
   const { LIST_SSR } = process.env;
 
-  const contactInfo = JSON.stringify({ "Contact Email": email });
+  const contactInfo = encodeURIComponent(JSON.stringify({"Contact Email": email }));
 
-  const uri = `https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${encodeURIComponent(
-    contactInfo
-  )}`;
+  //console.log(email.replace("@", "%40"));
+
+  console.log(contactInfo);
+
+  // return;
+
+  const uri = `https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
 
   const res = await fetch(uri, {
     method: "POST",
@@ -19,6 +23,7 @@ async function subscribe(email, token) {
       "Content-Type": "application/x-www-form-urlencoded",
     },
   });
+
 
   let data = await res.json();
 
@@ -36,10 +41,28 @@ async function subscribe(email, token) {
 
     const accessToken = await res.json();
 
+    // const tokenDoc = await strapi.query("access-token").find();
+
+    // console.log(tokenDoc.id);
+
+    // // const doc = await strapi.query("access-token").update(
+    // //   { id: tokenDoc.id },
+    // //   {
+    // //     token: accessToken.access_token,
+    // //   }
+    // // );
+
+
+    const doc = await strapi.query('access-token').update(
+      { token },
+      { token:  accessToken.access_token}
+    );
+
+    console.log(doc);
+
     return await subscribe(email, accessToken.access_token);
   }
 
-  console.log(data);
 
   if (data.status !== "success") {
     throw new Error("Something went wrong!");
@@ -62,7 +85,7 @@ module.exports = {
    */
 
   async create(ctx) {
-    let entity;
+    let entity, success = false;
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
       entity = await strapi.services.subscriber.create(data, { files });
@@ -70,12 +93,15 @@ module.exports = {
       try {
         const { ref, email } = JSON.parse(ctx.request.body);
 
-        const token =
-          "1000.12c9694de750b7a0039761e714835ffe.13d067ce33ff85820a88255918a7d52d";
+        const tokenDoc = await strapi.query("access-token").findOne();
 
-        console.log(email);
+        const token = tokenDoc.token;
 
         const data = await subscribe(email, token);
+
+        console.log(data)
+
+        if(!data.message.startsWith('A confirmation email is sent to the user.')) throw new Error("Something went wrong");
 
         // console.log(JSON.parse(ctx.request.body));
 
@@ -92,11 +118,19 @@ module.exports = {
           );
         }
 
-        entity = await strapi.services.subscriber.create(ctx.request.body);
+        const subs = await strapi.query("subscriber").findOne({ email });
+
+        if(!subs) {
+          entity = await strapi.services.subscriber.create(ctx.request.body);
+        }
+
+        success = true;
+
       } catch (error) {
+        console.log(error);
         console.log("Oh no!");
       }
     }
-    return sanitizeEntity(entity, { model: strapi.models.subscriber });
+    return sanitizeEntity(success || entity, { model: strapi.models.subscriber });
   },
 };
