@@ -34,18 +34,17 @@
       "type": "email",
       "required": true
     },
-    "confirmed": {
-      "type": "boolean",
-      "default": false,
-      "required": true
-    },
     "review": {
-      "via": "song",
-      "model": "review"
+      "model": "review",
+      "via": "song"
     },
     "artistId": {
       "via": "songs",
       "model": "artist"
+    },
+    "picked": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

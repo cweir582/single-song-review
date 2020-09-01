@@ -33,6 +33,14 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/artists/confirm/:token",
+      "handler": "artist.confirm",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "POST",
       "path": "/artists",
       "handler": "artist.create",

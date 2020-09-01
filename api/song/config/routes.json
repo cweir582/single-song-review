@@ -18,6 +18,14 @@
     },
     {
       "method": "GET",
+      "path": "/songs/random",
+      "handler": "song.random",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/songs/:id",
       "handler": "song.findOne",
       "config": {
