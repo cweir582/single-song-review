@@ -27,7 +27,8 @@ module.exports = {
             data.artist_name.slice(0, 3) +
             crypto.randomBytes(6).toString("hex"),
           referred: 0,
-          confirmationToken: token
+          confirmationToken: token,
+          confirm: false
         };
 
         await strapi.plugins['email'].services.email.send({
