@@ -27,7 +27,15 @@
     {
       "method": "GET",
       "path": "/subscribers/hell-review/:token",
-      "handler": "subscriber.findOne",
+      "handler": "subscriber.checkToken",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/subscribers/hell-review/confirm/:token",
+      "handler": "subscriber.subscribeToHR",
       "config": {
         "policies": []
       }

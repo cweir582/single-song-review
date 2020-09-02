@@ -41,6 +41,14 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/products/hrsubscribe",
+      "handler": "product.subscribeToHR",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "PUT",
       "path": "/products/:id",
       "handler": "product.update",

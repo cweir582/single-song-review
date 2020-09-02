@@ -166,4 +166,42 @@ module.exports = {
 
     return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
   },
+
+  async checkToken(ctx) {
+    const {token} = ctx.params;
+
+    console.log(token);
+
+    let subscriber;
+    try {
+      subscriber = await strapi.query('subscriber').findOne({ hr_token: token });
+    } catch (error) {
+      console.log("Oh no!");
+    }
+
+    return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
+  },
+
+  async subscribeToHR(ctx) {
+    let subscriber;
+
+    const { token } = ctx.params;
+
+    try {
+
+    subscriber = await strapi.query('subscriber').findOne({ hr_confirm: token });
+
+    await strapi.query("subscriber").update(
+      { id: subscriber.id  },
+      {
+        hr_confirm: null,
+        hellreview: true
+      }
+    );
+    } catch (error) {
+      console.log("Oh no!");
+    }
+
+    return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
+  }
 };
