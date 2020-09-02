@@ -1,5 +1,7 @@
 const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 const fetch = require("node-fetch");
+const crypto = require('crypto');
+const stripe = require("stripe")(process.env.STRIPE_SK);
 
 let errorCount = 0;
 
@@ -58,8 +60,6 @@ async function subscribe(email, token) {
       { token:  accessToken.access_token}
     );
 
-    console.log(doc);
-
     return await subscribe(email, accessToken.access_token);
   }
 
@@ -85,6 +85,7 @@ module.exports = {
    */
 
   async create(ctx) {
+    console.log("Hi");
     let entity, success = false;
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
@@ -94,12 +95,9 @@ module.exports = {
         const { ref, email } = JSON.parse(ctx.request.body);
 
         const tokenDoc = await strapi.query("access-token").findOne();
-
         const token = tokenDoc.token;
-
         const data = await subscribe(email, token);
 
-        console.log(data)
 
         if(!data.message.startsWith('A confirmation email is sent to the user.')) throw new Error("Something went wrong");
 
@@ -132,5 +130,40 @@ module.exports = {
       }
     }
     return sanitizeEntity(success || entity, { model: strapi.models.subscriber });
+  },
+
+  async hellReview(ctx) {
+    let subscriber;
+    const { email } = JSON.parse(ctx.request.body);
+    const token = crypto.randomBytes(64).toString('hex');
+
+
+    try {
+      const alreadySubscribed = await strapi.query('subscriber').findOne({ email });
+      if (alreadySubscribed) {
+        subscriber = await strapi.query('subscriber').update(
+          { id: alreadySubscribed.id },
+          { hr_token: token}
+        );
+      }else {
+        subscriber = await strapi.query('subscriber').create({
+          email,
+          hr_token: token
+        });
+      }
+
+      await strapi.plugins['email'].services.email.send({
+        to: email,
+        from: 'hi@asinglesongreview.com',
+        replyTo: 'hi@asinglesongreview.com',
+        subject: 'Confirm you email',
+        text: 'Please confirm your email using this link ' + process.env.FRONTEND_URL + '/hell-review/confirmed?token=' + token,
+      });
+    } catch (error) {
+      console.log(error);
+      console.log("Oh no!");
+    }
+
+    return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
   },
 };

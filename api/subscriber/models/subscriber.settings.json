@@ -16,6 +16,10 @@
     "hellreview": {
       "type": "boolean",
       "default": false
+    },
+    "hr_token": {
+      "type": "string",
+      "unique": true
     }
   }
 }

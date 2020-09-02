@@ -25,9 +25,25 @@
       }
     },
     {
+      "method": "GET",
+      "path": "/subscribers/hell-review/:token",
+      "handler": "subscriber.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "POST",
       "path": "/subscribers",
       "handler": "subscriber.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/subscribers/hell-review",
+      "handler": "subscriber.hellReview",
       "config": {
         "policies": []
       }
