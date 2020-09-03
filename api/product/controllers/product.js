@@ -1,6 +1,7 @@
 'use strict';
 const subscriber = require("../../subscriber/controllers/subscriber");
 const crypto = require('crypto');
+const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
 /**
@@ -9,14 +10,20 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
  */
 
 module.exports = {
-  async createPaymentIntent(ctx) {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: 150,
-      currency: "usd"
-    });
 
-    return { message: paymentIntent.client_secret}
+  async findOne(ctx) {
+    const { slug } = ctx.params;
+
+    try {
+      const entity = await strapi.services.product.findOne({ slug });
+    return sanitizeEntity(entity, { model: strapi.models.product });
+    } catch (error) {
+
+      console.log(error);
+      console.log("Oh no!");
+    }
   },
+
   async subscribeToHR(ctx) {
     const { token } = JSON.parse(ctx.request.body);
     const confToken = crypto.randomBytes(64).toString('hex');

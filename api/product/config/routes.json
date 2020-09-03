@@ -18,7 +18,7 @@
     },
     {
       "method": "GET",
-      "path": "/products/:id",
+      "path": "/products/:slug",
       "handler": "product.findOne",
       "config": {
         "policies": []
@@ -28,14 +28,6 @@
       "method": "POST",
       "path": "/products",
       "handler": "product.create",
-      "config": {
-        "policies": []
-      }
-    },
-    {
-      "method": "POST",
-      "path": "/products/create-payment-intent",
-      "handler": "product.createPaymentIntent",
       "config": {
         "policies": []
       }
