@@ -1,5 +1,5 @@
 'use strict';
-const subscriber = require("../../subscriber/controllers/subscriber");
+
 const crypto = require('crypto');
 const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 const stripe = require("stripe")(process.env.STRIPE_SK);
@@ -49,8 +49,6 @@ module.exports = {
       success_url: process.env.FRONTEND_URL + "/hell-review/confirmed?confirm="+confToken,
       cancel_url: process.env.FRONTEND_URL + "/hell-review/",
     });
-
-    console.log("Here");
 
     return { id: session.id };
   }

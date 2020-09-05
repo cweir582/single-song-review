@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_cart_carts",
+  "info": {
+    "name": "cart",
+    "icon": "cart-arrow-down"
+  },
+  "options": {},
+  "attributes": {
+    "product": {
+      "model": "product"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "total": {
+      "type": "decimal"
+    },
+    "title": {
+      "type": "string"
+    }
+  }
+}
