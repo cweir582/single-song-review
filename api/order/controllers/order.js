@@ -66,15 +66,42 @@ module.exports = {
   async confirmOrder(ctx) {
     const { token } = ctx.params;
 
-    const order = await strapi.query('order').findOne({ confirm: token });
+    const order = await strapi.query("order").findOne({ confirm: token });
 
-    const updatedOrder = await strapi.query('order').update(
+    if (!order) throw new Error("Order not found");
+
+    await strapi.plugins["email"].services.email.send({
+      to: process.env.SEND_ORDER_NOTIFICATON,
+      from: "hi@asinglesongreview.com",
+      replyTo: "hi@asinglesongreview.com",
+      subject: "Order confirmed ",
+      text: "There's a new order. ID: " + order.id,
+    });
+
+    let cartHtml = "";
+
+    order.cart.forEach((item) => {
+      cartHtml += `<div>${item.title} - ${item.quantity} x $${item.product.price} = $${item.total}</div>`;
+    });
+
+    const updatedOrder = await strapi.query("order").update(
       { id: order.id },
       {
         confirm: null,
-        order_state: 'paid'
-      })
-      return sanitizeEntity(updatedOrder, { model: strapi.models.product });
-  }
+        order_state: "paid",
+      }
+    );
 
+    await strapi.plugins["email"].services.email.send({
+      to: order.email,
+      from: "hi@asinglesongreview.com",
+      replyTo: "hi@asinglesongreview.com",
+      subject: "Order confirmed",
+      html: `Thanks for your order.\n
+      Your order id is ${order.id}\n
+          ${cartHtml}`,
+    });
+
+    return sanitizeEntity(updatedOrder, { model: strapi.models.product });
+  },
 };
