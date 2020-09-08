@@ -5,18 +5,19 @@ const stripe = require("stripe")(process.env.STRIPE_SK);
 
 let errorCount = 0;
 
-async function subscribe(email, token) {
-  const { LIST_SSR } = process.env;
+async function subscribe(email, hellreview = false) {
+  const { LIST_SSR, LIST_HR } = process.env;
+
+  const tokenDoc = await strapi.query("access-token").findOne();
+  const token = tokenDoc.token;
 
   const contactInfo = encodeURIComponent(JSON.stringify({"Contact Email": email }));
 
-  //console.log(email.replace("@", "%40"));
-
-  console.log(contactInfo);
-
   // return;
 
-  const uri = `https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
+  const uri = hellreview ? `https://campaigns.zoho.com/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
+  : `https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
+
 
   const res = await fetch(uri, {
     method: "POST",
@@ -60,16 +61,15 @@ async function subscribe(email, token) {
       { token:  accessToken.access_token}
     );
 
-    return await subscribe(email, accessToken.access_token);
+    return await subscribe(email, hellreview);
   }
-
 
   if (data.status !== "success") {
     throw new Error("Something went wrong!");
   }
 
   if (
-    data.message.startsWith("This email address already exists in the list.")
+    data.message && data.message.startsWith("This email address already exists in the list.")
   ) {
     throw new Error("Already Exists");
   }
@@ -94,9 +94,7 @@ module.exports = {
       try {
         const { ref, email } = JSON.parse(ctx.request.body);
 
-        const tokenDoc = await strapi.query("access-token").findOne();
-        const token = tokenDoc.token;
-        const data = await subscribe(email, token);
+        const data = await subscribe(email);
 
 
         if(!data.message.startsWith('A confirmation email is sent to the user.')) throw new Error("Something went wrong");
@@ -132,6 +130,7 @@ module.exports = {
     return sanitizeEntity(success || entity, { model: strapi.models.subscriber });
   },
 
+  // Generate confirmation token
   async hellReview(ctx) {
     let subscriber;
     const { email } = JSON.parse(ctx.request.body);
@@ -167,6 +166,7 @@ module.exports = {
     return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
   },
 
+  // Check HR token for email confirmation
   async checkToken(ctx) {
     const {token} = ctx.params;
 
@@ -191,14 +191,18 @@ module.exports = {
 
     subscriber = await strapi.query('subscriber').findOne({ hr_confirm: token });
 
+    const data = await subscribe(subscriber.email, true);
+
     await strapi.query("subscriber").update(
       { id: subscriber.id  },
       {
         hr_confirm: null,
+        hr_token: null,
         hellreview: true
       }
     );
     } catch (error) {
+      console.log(error);
       console.log("Oh no!");
     }
 
