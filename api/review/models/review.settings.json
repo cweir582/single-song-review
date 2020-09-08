@@ -10,8 +10,8 @@
   },
   "attributes": {
     "song": {
-      "via": "review",
-      "model": "song"
+      "model": "song",
+      "via": "review"
     },
     "introduction": {
       "type": "text",
@@ -36,6 +36,22 @@
     "shouldtheylistenmore": {
       "type": "text",
       "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "songreview",
+        "hellreview"
+      ],
+      "default": "hellreview"
+    },
+    "sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "reviewer": {
+      "type": "string",
+      "default": "anonymous"
     }
   }
 }
