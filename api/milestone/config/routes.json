@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/milestones",
+      "handler": "milestone.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/milestones/count",
+      "handler": "milestone.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/milestones/:id",
+      "handler": "milestone.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/milestones",
+      "handler": "milestone.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/milestones/:id",
+      "handler": "milestone.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/milestones/:id",
+      "handler": "milestone.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

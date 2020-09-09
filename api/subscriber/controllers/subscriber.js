@@ -106,10 +106,14 @@ module.exports = {
             .query("artist")
             .findOne({ referral: ref });
 
+          const milestone = await strapi.query("milestone").findOne({ min_referral: artist.referred + 1 });
+
           await strapi.query("artist").update(
             { id: artist.id },
             {
               referred: artist.referred + 1,
+              milestone: milestone ? milestone : artist.milestone,
+              rewarded: milestone ? false : artist.rewarded
             }
           );
         }

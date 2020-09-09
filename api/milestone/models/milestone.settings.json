@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "milestones",
+  "info": {
+    "name": "milestone"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "reward": {
+      "type": "string"
+    },
+    "photo": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false
+    },
+    "min_referral": {
+      "type": "integer"
+    }
+  }
+}

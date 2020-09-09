@@ -35,6 +35,13 @@
     "confirmationToken": {
       "type": "string",
       "unique": true
+    },
+    "milestone": {
+      "model": "milestone"
+    },
+    "rewarded": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
