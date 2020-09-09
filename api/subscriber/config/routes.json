@@ -57,6 +57,14 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/subscribers/hell-review/unsubscribeEmail",
+      "handler": "subscriber.verifyHRUnsubEmail",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "PUT",
       "path": "/subscribers/:id",
       "handler": "subscriber.update",

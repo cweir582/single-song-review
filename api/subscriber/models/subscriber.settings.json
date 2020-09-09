@@ -24,6 +24,9 @@
     "hr_confirm": {
       "type": "string",
       "unique": true
+    },
+    "hr_sessionid": {
+      "type": "string"
     }
   }
 }

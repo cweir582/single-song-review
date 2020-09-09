@@ -211,5 +211,37 @@ module.exports = {
     }
 
     return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
+  },
+
+  async verifyHRUnsubEmail(ctx) {
+    let subscriber;
+    const { email } = JSON.parse(ctx.request.body);
+    const token = crypto.randomBytes(64).toString('hex');
+
+
+    try {
+      const alreadySubscribed = await strapi.query('subscriber').findOne({ email });
+
+      if(!alreadySubscribed && !alreadySubscribed.hr_sessionid) throw new Error("Not subscribed");
+
+        subscriber = await strapi.query('subscriber').update(
+          { id: alreadySubscribed.id },
+          { hr_confirm: token}
+        );
+
+
+      await strapi.plugins['email'].services.email.send({
+        to: email,
+        from: 'hi@asinglesongreview.com',
+        replyTo: 'hi@asinglesongreview.com',
+        subject: 'Confirm you email',
+        text: 'Please confirm your email using this link ' + process.env.FRONTEND_URL + '/hell-review/unsubscribe?confirm=' + token,
+      });
+    } catch (error) {
+      console.log(error);
+      console.log("Oh no!");
+    }
+
+    return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
   }
 };

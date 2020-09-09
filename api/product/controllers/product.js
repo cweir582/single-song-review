@@ -28,14 +28,10 @@ module.exports = {
     const { token } = JSON.parse(ctx.request.body);
     const confToken = crypto.randomBytes(64).toString('hex');
 
-    const subs = await strapi.query("subscriber").findOne({ hr_token: token });
+    try {
+      const subs = await strapi.query("subscriber").findOne({ hr_token: token });
 
-    const subscriber = await strapi.query("subscriber").update(
-      { id: subs.id  },
-      {
-        hr_confirm: confToken
-      }
-    );
+    if(!subs) throw new Error("Token don't match");
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -50,7 +46,45 @@ module.exports = {
       cancel_url: process.env.FRONTEND_URL + "/hell-review/",
     });
 
+    console.log(session.id);
+
+    const subscriber = await strapi.query("subscriber").update(
+      { id: subs.id  },
+      {
+        hr_confirm: confToken,
+        hr_sessionid: session.id
+      }
+    );
+
     return { id: session.id };
+    } catch (error) {
+      console.log("Oh no!");
+    }
+  },
+
+  async unsubscribeToHR(ctx) {
+    const { token } = JSON.parse(ctx.request.body);
+    console.log(token)
+    try {
+      const subs = await strapi.query("subscriber").findOne({ hr_confirm: token });
+
+      if(!subs) throw new Error('Can\'t find user');
+      const session = await stripe.checkout.sessions.retrieve(subs.hr_sessionid);
+      await stripe.subscriptions.update(session.subscription, {cancel_at_period_end: true});
+
+      const subscriber = await strapi.query("subscriber").update(
+        { id: subs.id  },
+        {
+          hr_confirm: null,
+          hellreview: false
+        }
+      );
+
+      return { message: "Subscription cancelled" }
+    } catch (error) {
+      console.log(error);
+      console.log("Oh no!");
+    }
   }
 
 };
