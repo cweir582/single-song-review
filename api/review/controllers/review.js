@@ -7,6 +7,33 @@ const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
  */
 
 module.exports = {
+  async findOne(ctx) {
+    const { id } = ctx.params;
+
+    const { introduction, like, dontLike, opinion, forfansof, shouldtheylistenmore, _id, reviewer, song: { streaming_link, artist_name, song_name, press_photo } } = await strapi.services.review.findOne({ id });
+
+    const entity = {
+      id: _id,
+      review: {
+        introduction,
+        'what i like':like,
+        'what i don\'t like': dontLike,
+        'my drunk opinion':opinion,
+        'for fans of':forfansof,
+        'should you listen to more':shouldtheylistenmore
+      },
+      streaming_link,
+      artist_name,
+      song_name,
+      press_photo,
+      reviewer
+    }
+
+    console.log(entity)
+
+    return sanitizeEntity(entity, { model: strapi.models.review });
+  },
+
   async find(ctx) {
     let entity, review;
 
