@@ -7,11 +7,11 @@ const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 module.exports = {
   async create(ctx) {
     console.log("Here");
-    // console.log(ctx.request.body);
+    console.log(ctx.request.body);
     let entity;
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
-
+      console.log(data);
       const artist = await strapi
         .query("artist")
         .findOne({ artist: data.artist_name });

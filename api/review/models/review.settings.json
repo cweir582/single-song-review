@@ -10,8 +10,8 @@
   },
   "attributes": {
     "song": {
-      "model": "song",
-      "via": "review"
+      "via": "review",
+      "model": "song"
     },
     "introduction": {
       "type": "text",

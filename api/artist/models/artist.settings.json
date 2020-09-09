@@ -15,8 +15,8 @@
       "unique": true
     },
     "songs": {
-      "collection": "song",
-      "via": "artistId"
+      "via": "artistId",
+      "collection": "song"
     },
     "referral": {
       "type": "string",

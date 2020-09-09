@@ -35,16 +35,24 @@
       "required": true
     },
     "review": {
-      "via": "song",
-      "model": "review"
+      "model": "review",
+      "via": "song"
     },
     "artistId": {
-      "via": "songs",
-      "model": "artist"
+      "model": "artist",
+      "via": "songs"
     },
     "picked": {
       "type": "boolean",
       "default": false
+    },
+    "submittedto": {
+      "type": "enumeration",
+      "enum": [
+        "songreview",
+        "hellreview"
+      ],
+      "default": "songreview"
     }
   }
 }
