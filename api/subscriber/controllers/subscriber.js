@@ -195,6 +195,8 @@ module.exports = {
 
     subscriber = await strapi.query('subscriber').findOne({ hr_confirm: token });
 
+    const session = await stripe.checkout.sessions.retrieve(subscriber.hr_sessionid);
+
     const data = await subscribe(subscriber.email, true);
 
     await strapi.query("subscriber").update(
@@ -202,7 +204,8 @@ module.exports = {
       {
         hr_confirm: null,
         hr_token: null,
-        hellreview: true
+        hellreview: true,
+        hr_subscriptionid: session.subscription
       }
     );
     } catch (error) {

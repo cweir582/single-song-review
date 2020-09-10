@@ -27,6 +27,9 @@
     },
     "hr_sessionid": {
       "type": "string"
+    },
+    "hr_subscriptionid": {
+      "type": "string"
     }
   }
 }
