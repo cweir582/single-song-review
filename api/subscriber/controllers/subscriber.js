@@ -246,5 +246,21 @@ module.exports = {
     }
 
     return sanitizeEntity(subscriber, { model: strapi.models.subscriber });
+  },
+
+  async verifyUser(ctx) {
+    const body = JSON.parse(ctx.request.body);
+
+    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${body}`
+    })
+
+    const data = await res.json();
+
+    return { data }
   }
 };
