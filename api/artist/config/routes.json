@@ -49,6 +49,14 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/artists/sendrefmail",
+      "handler": "artist.sendReferralMail",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "PUT",
       "path": "/artists/:id",
       "handler": "artist.update",

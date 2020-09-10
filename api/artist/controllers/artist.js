@@ -44,4 +44,24 @@ module.exports = {
       return {message: "error"}
     }
   },
+
+  async sendReferralMail(ctx) {
+    const data = JSON.parse(ctx.request.body);
+
+    try {
+      console.log(data);
+      await strapi.plugins['email'].services.email.send({
+        to: data.to,
+        from: 'hi@asinglesongreview.com',
+        replyTo: 'hi@asinglesongreview.com',
+        subject: 'Subscribe to asinglesongreview',
+        text: data.message
+      });
+
+      return { data }
+    } catch (error) {
+      console.log(error);
+      console.log("Oh no!");
+    }
+  }
 };
