@@ -55,7 +55,7 @@ module.exports = {
         from: 'hi@asinglesongreview.com',
         replyTo: 'hi@asinglesongreview.com',
         subject: `From ${data.from}, subscribe to a single song review`,
-        text: data.message
+        html: data.message
       });
 
       return { data }
