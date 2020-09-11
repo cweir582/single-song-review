@@ -19,11 +19,11 @@
     },
     "hr_token": {
       "type": "string",
-      "unique": true
+      "unique": false
     },
     "hr_confirm": {
       "type": "string",
-      "unique": true
+      "unique": false
     },
     "hr_sessionid": {
       "type": "string"
