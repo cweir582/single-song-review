@@ -3,8 +3,6 @@ const fetch = require("node-fetch");
 const crypto = require('crypto');
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-let errorCount = 0;
-
 async function subscribe(email, hellreview = false) {
   const { LIST_SSR, LIST_HR } = process.env;
 
@@ -15,8 +13,8 @@ async function subscribe(email, hellreview = false) {
 
   // return;
 
-  const uri = hellreview ? `https://campaigns.zoho.com/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
-  : `https://campaigns.zoho.com/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
+  const uri = hellreview ? `https://campaigns.zoho.eu/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
+  : `https://campaigns.zoho.eu/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
 
 
   const res = await fetch(uri, {
@@ -33,7 +31,7 @@ async function subscribe(email, hellreview = false) {
   if (data.Code === "1007") {
     const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN } = process.env;
     const res = await fetch(
-      `https://accounts.zoho.com/oauth/v2/token?refresh_token=${REFRESH_TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token`,
+      `https://accounts.zoho.eu/oauth/v2/token?refresh_token=${REFRESH_TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token`,
       {
         method: "POST",
         headers: {
@@ -43,18 +41,6 @@ async function subscribe(email, hellreview = false) {
     );
 
     const accessToken = await res.json();
-
-    // const tokenDoc = await strapi.query("access-token").find();
-
-    // console.log(tokenDoc.id);
-
-    // // const doc = await strapi.query("access-token").update(
-    // //   { id: tokenDoc.id },
-    // //   {
-    // //     token: accessToken.access_token,
-    // //   }
-    // // );
-
 
     const doc = await strapi.query('access-token').update(
       { token },
