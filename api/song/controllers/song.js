@@ -16,10 +16,8 @@ module.exports = {
         .query("artist")
         .findOne({ artist: data.artist_name });
 
-
-
       if (!artist) {
-        const token = crypto.randomBytes(64).toString('hex');
+        const token = crypto.randomBytes(64).toString("hex");
 
         let artistData = {
           artist: data.artist_name,
@@ -28,15 +26,19 @@ module.exports = {
             crypto.randomBytes(6).toString("hex"),
           referred: 0,
           confirmationToken: token,
-          confirm: false
+          confirm: false,
         };
 
-        await strapi.plugins['email'].services.email.send({
+        await strapi.plugins["email"].services.email.send({
           to: data.contact_email,
-          from: 'hi@asinglesongreview.com',
-          replyTo: 'hi@asinglesongreview.com',
-          subject: 'Confirm you email',
-          text: 'Please confirm your email using this link ' + process.env.FRONTEND_URL + '/submit-song/confirmation?token=' + token,
+          from: "hi@asinglesongreview.com",
+          replyTo: "hi@asinglesongreview.com",
+          subject: "Confirm you email",
+          text:
+            "Please confirm your email using this link " +
+            process.env.FRONTEND_URL +
+            "/submit-song/confirmation?token=" +
+            token,
         });
 
         const artistDoc = await strapi.services.artist.create(artistData);
@@ -53,44 +55,37 @@ module.exports = {
   },
 
   async random() {
-    const artists = await strapi.query('artist').find();
-    const songs = await strapi.query('song').find()
-
-     // console.log(artists);
+    const artists = await strapi.query("artist").find();
+    const songs = await strapi.query("song").find({ picked: false });
 
     const getRandomInt = (max) => {
       return Math.floor(Math.random() * Math.floor(max));
-    }
-
+    };
 
     let song = {};
 
     const rand = getRandomInt(100);
 
     async function getRandomsong(arr) {
-      const randSong = getRandomInt(arr.length-1);
-
-      //if(songs[randSong].picked) getRandomsong(arr);
-
+      const randSong = getRandomInt(arr.length - 1);
 
       song = songs[randSong];
 
-      // await strapi.query("song").update(
-      //   { id: song.id },
-      //   {
-      //     picked: true,
-      //   }
-      // );
-
+      await strapi.query("song").update(
+        { id: song.id },
+        {
+          picked: true,
+        }
+      );
     }
 
-    if(rand >= 85) {
+    if (rand >= 85) {
       getRandomsong(songs);
-    }else {
+    } else {
       let maxReferred = 0;
 
-      artists.forEach(artist => {
-        maxReferred  += artist.referred;
+      artists.forEach((artist) => {
+        maxReferred += artist.referred;
       });
 
       const rand = getRandomInt(100);
@@ -98,19 +93,18 @@ module.exports = {
       let counted = 0;
 
       artists.forEach((artist, idx) => {
-        const perc = (artist.referred/maxReferred) * 100;
+        const perc = (artist.referred / maxReferred) * 100;
 
-        if(rand >= counted && rand <= counted + perc) {
+        if (rand >= counted && rand <= counted + perc) {
           getRandomsong(artist.songs);
         }
 
         counted += perc;
-      })
+      });
     }
 
-
-
-    return sanitizeEntity(song || getRandomsong(songs), { model: strapi.models.song });
-  }
-
+    return sanitizeEntity(song || getRandomsong(songs), {
+      model: strapi.models.song,
+    });
+  },
 };
