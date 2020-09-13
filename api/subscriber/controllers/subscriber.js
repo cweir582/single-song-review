@@ -79,9 +79,7 @@ module.exports = {
       entity = await strapi.services.subscriber.create(data, { files });
     } else {
       try {
-        const { ref, email } = ctx.request.body;
-        // const { ref, email } = JSON.parse(ctx.request.body);
-
+        const { ref, email } = JSON.parse(ctx.request.body);
 
         const referralCode = 'sub-' + email.slice(0, 3) +
         crypto.randomBytes(6).toString("hex");
