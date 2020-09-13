@@ -112,7 +112,7 @@ module.exports = {
                 rewarded: milestone ? false : subcriber.rewarded
               }
             );
-          }else {
+          }else if(ref.startsWith('art-')) {
             const artist = await strapi
               .query("artist")
               .findOne({ referral: ref });
