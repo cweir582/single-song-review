@@ -28,6 +28,7 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
 
   let data = await res.json();
 
+  console.log(data)
 
   if (data.Code === "1007") {
     const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN } = process.env;
@@ -42,6 +43,8 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
     );
 
     const accessToken = await res.json();
+
+    console.log(accessToken);
 
     const doc = await strapi.query('access-token').update(
       { token },
