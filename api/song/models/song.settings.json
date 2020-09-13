@@ -39,8 +39,8 @@
       "via": "song"
     },
     "artistId": {
-      "model": "artist",
-      "via": "songs"
+      "via": "songs",
+      "model": "artist"
     },
     "picked": {
       "type": "boolean",

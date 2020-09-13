@@ -22,7 +22,7 @@ module.exports = {
         let artistData = {
           artist: data.artist_name,
           referral:
-            data.artist_name.slice(0, 3) +
+            'art-' + data.artist_name.slice(0, 3) +
             crypto.randomBytes(6).toString("hex"),
           referred: 0,
           confirmationToken: token,

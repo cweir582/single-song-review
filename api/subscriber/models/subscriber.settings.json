@@ -30,6 +30,20 @@
     },
     "hr_subscriptionid": {
       "type": "string"
+    },
+    "referral": {
+      "type": "string"
+    },
+    "referred": {
+      "type": "integer",
+      "default": 0
+    },
+    "milestone": {
+      "model": "milestone"
+    },
+    "rewarded": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

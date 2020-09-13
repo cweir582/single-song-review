@@ -26,6 +26,14 @@
     },
     {
       "method": "GET",
+      "path": "/subscribers/referral/:token",
+      "handler": "subscriber.referral",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/subscribers/hell-review/:token",
       "handler": "subscriber.checkToken",
       "config": {

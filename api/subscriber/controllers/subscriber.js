@@ -3,18 +3,18 @@ const fetch = require("node-fetch");
 const crypto = require('crypto');
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
-async function subscribe(email, hellreview = false) {
-  const { LIST_SSR, LIST_HR } = process.env;
+async function subscribe(email, hellreview = false, referral, referred = 0) {
+  const { LIST_SSR, LIST_HR, ZOHO_BASE_URI } = process.env;
 
   const tokenDoc = await strapi.query("access-token").findOne();
   const token = tokenDoc.token;
 
-  const contactInfo = encodeURIComponent(JSON.stringify({"Contact Email": email }));
+  const contactInfo = encodeURIComponent(JSON.stringify({"Contact Email": email, "Referral": referral, "Referred": referred }));
 
   // return;
 
-  const uri = hellreview ? `https://campaigns.zoho.eu/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
-  : `https://campaigns.zoho.eu/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
+  const uri = hellreview ? `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
+  : `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
 
 
   const res = await fetch(uri, {
@@ -28,10 +28,11 @@ async function subscribe(email, hellreview = false) {
 
   let data = await res.json();
 
+
   if (data.Code === "1007") {
     const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN } = process.env;
     const res = await fetch(
-      `https://accounts.zoho.eu/oauth/v2/token?refresh_token=${REFRESH_TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token`,
+      `https://accounts.${ZOHO_BASE_URI}/oauth/v2/token?refresh_token=${REFRESH_TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=refresh_token`,
       {
         method: "POST",
         headers: {
@@ -54,11 +55,11 @@ async function subscribe(email, hellreview = false) {
     throw new Error("Something went wrong!");
   }
 
-  if (
-    data.message && data.message.startsWith("This email address already exists in the list.")
-  ) {
-    throw new Error("Already Exists");
-  }
+  // if (
+  //   data.message && data.message.startsWith("This email address already exists in the list.")
+  // ) {
+  //   throw new Error("Already Exists");
+  // }
 
   return data;
 }
@@ -78,36 +79,64 @@ module.exports = {
       entity = await strapi.services.subscriber.create(data, { files });
     } else {
       try {
-        const { ref, email } = JSON.parse(ctx.request.body);
+        const { ref, email } = ctx.request.body;
+        // const { ref, email } = JSON.parse(ctx.request.body);
 
-        const data = await subscribe(email);
 
+        const referralCode = 'sub-' + email.slice(0, 3) +
+        crypto.randomBytes(6).toString("hex");
 
-        if(!data.message.startsWith('A confirmation email is sent to the user.')) throw new Error("Something went wrong");
+        // return console.log(referralCode);
+
+        const data = await subscribe(email, false, referralCode);
+
+        // if(!data.message.startsWith('A confirmation email is sent to the user.')) throw new Error("Something went wrong");
 
         // console.log(JSON.parse(ctx.request.body));
 
         if (ref) {
-          const artist = await strapi
-            .query("artist")
-            .findOne({ referral: ref });
+          if(ref.startsWith('sub-')){
+            const subcriber = await strapi
+              .query("subscriber")
+              .findOne({ referral: ref });
 
-          const milestone = await strapi.query("milestone").findOne({ min_referral: artist.referred + 1 });
+              await subscribe(subcriber.email, false, subcriber.referral, subcriber.referred + 1);
 
-          await strapi.query("artist").update(
-            { id: artist.id },
-            {
-              referred: artist.referred + 1,
-              milestone: milestone ? milestone : artist.milestone,
-              rewarded: milestone ? false : artist.rewarded
-            }
-          );
+            const milestone = await strapi.query("milestone").findOne({ min_referral: subcriber.referred + 1 });
+
+            await strapi.query("subscriber").update(
+              { id: subcriber.id },
+              {
+                referred: subcriber.referred + 1,
+                milestone: milestone ? milestone : subcriber.milestone,
+                rewarded: milestone ? false : subcriber.rewarded
+              }
+            );
+          }else {
+            const artist = await strapi
+              .query("artist")
+              .findOne({ referral: ref });
+
+            const milestone = await strapi.query("milestone").findOne({ min_referral: artist.referred + 1 });
+
+            await strapi.query("artist").update(
+              { id: artist.id },
+              {
+                referred: artist.referred + 1
+              }
+            );
+          }
+
+
         }
 
         const subs = await strapi.query("subscriber").findOne({ email });
 
         if(!subs) {
-          entity = await strapi.services.subscriber.create(ctx.request.body);
+          entity = await strapi.services.subscriber.create({
+            email,
+            referral: referralCode
+          });
         }
 
         success = true;
@@ -118,6 +147,15 @@ module.exports = {
       }
     }
     return sanitizeEntity(success || entity, { model: strapi.models.subscriber });
+  },
+
+  async referral(ctx) {
+    const { token } = ctx.params;
+
+    console.log(token);
+
+    const entity = await strapi.services.subscriber.findOne({ referral: token	});
+    return sanitizeEntity(entity, { model: strapi.models.subscriber });
   },
 
   // Generate confirmation token

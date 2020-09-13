@@ -15,8 +15,8 @@
       "unique": true
     },
     "songs": {
-      "via": "artistId",
-      "collection": "song"
+      "collection": "song",
+      "via": "artistId"
     },
     "referral": {
       "type": "string",
@@ -35,13 +35,6 @@
     "confirmationToken": {
       "type": "string",
       "unique": true
-    },
-    "milestone": {
-      "model": "milestone"
-    },
-    "rewarded": {
-      "type": "boolean",
-      "default": false
     }
   }
 }
