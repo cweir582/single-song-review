@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 
 /**
@@ -10,26 +10,34 @@ module.exports = {
   async findOne(ctx) {
     const { id } = ctx.params;
 
-    const { introduction, like, dontLike, opinion, forfansof, shouldtheylistenmore, _id, reviewer, song: { streaming_link, artist_name, song_name, press_photo } } = await strapi.services.review.findOne({ id });
+    const {
+      introduction,
+      like,
+      dontLike,
+      opinion,
+      forfansof,
+      shouldtheylistenmore,
+      _id,
+      reviewer,
+      song: { streaming_link, artist_name, song_name, press_photo },
+    } = await strapi.services.review.findOne({ id });
 
     const entity = {
       id: _id,
       review: {
         introduction,
-        'what i like':like,
-        'what i don\'t like': dontLike,
-        'my drunk opinion':opinion,
-        'for fans of':forfansof,
-        'should you listen to more':shouldtheylistenmore
+        "what i like": like,
+        "what i don't like": dontLike,
+        "my drunk opinion": opinion,
+        "for fans of": forfansof,
+        "should you listen to more": shouldtheylistenmore,
       },
       streaming_link,
       artist_name,
       song_name,
       press_photo,
-      reviewer
-    }
-
-    console.log(entity)
+      reviewer,
+    };
 
     return sanitizeEntity(entity, { model: strapi.models.review });
   },
@@ -37,16 +45,48 @@ module.exports = {
   async find(ctx) {
     let entity, review;
 
-
     if (ctx.query._q) {
       //entities = await strapi.services.restaurant.search(ctx.query);
     } else {
-      entity = await strapi.services.review.find({ sent: true, category: 'songreview' });
-      console.log(entity);
+      entity = await strapi.services.review.find({
+        sent: true,
+        category: "songreview",
+      });
 
-      review = entity.map(item => {
-        const { introduction, like, dontLike, opinion, forfansof, shouldtheylistenmore, id } = item;
-        const { streaming_link, artist_name, song_name, press_photo } = item.song;
+      review = entity.map((item) => {
+        const {
+          introduction,
+          like,
+          dontLike,
+          opinion,
+          forfansof,
+          shouldtheylistenmore,
+          id,
+        } = item;
+
+        let reviewObj = {
+          streaming_link: "",
+          artist_name: "",
+          song_name: "",
+          press_photo: ""
+        };
+
+        if (item.song) {
+          const {
+            streaming_link,
+            artist_name,
+            song_name,
+            press_photo,
+          } = item.song;
+
+          reviewObj = {
+            streaming_link,
+            artist_name,
+            song_name,
+            press_photo,
+          };
+        }
+
         return {
           id,
           introduction,
@@ -55,14 +95,11 @@ module.exports = {
           opinion,
           forfansof,
           shouldtheylistenmore,
-          streaming_link,
-          artist_name,
-          song_name,
-          press_photo
-        }
-      })
+          ...reviewObj
+        };
+      });
     }
 
     return review;
-  }
+  },
 };

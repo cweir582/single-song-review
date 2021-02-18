@@ -58,12 +58,6 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
     throw new Error("Something went wrong!");
   }
 
-  // if (
-  //   data.message && data.message.startsWith("This email address already exists in the list.")
-  // ) {
-  //   throw new Error("Already Exists");
-  // }
-
   return data;
 }
 
@@ -221,7 +215,6 @@ module.exports = {
     subscriber = await strapi.query('subscriber').findOne({ hr_confirm: token });
 
     const session = await stripe.checkout.sessions.retrieve(subscriber.hr_sessionid);
-
     const data = await subscribe(subscriber.email, true);
 
     await strapi.query("subscriber").update(
