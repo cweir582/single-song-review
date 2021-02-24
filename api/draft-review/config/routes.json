@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/draft-reviews",
+      "handler": "draft-review.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/draft-reviews/count",
+      "handler": "draft-review.count",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/draft-reviews/:id",
+      "handler": "draft-review.findOne",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/draft-reviews",
+      "handler": "draft-review.create",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/draft-reviews/:id",
+      "handler": "draft-review.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/draft-reviews/:id",
+      "handler": "draft-review.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

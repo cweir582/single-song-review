@@ -35,8 +35,8 @@
       "required": true
     },
     "review": {
-      "model": "review",
-      "via": "song"
+      "via": "song",
+      "model": "draft-review"
     },
     "artistId": {
       "via": "songs",

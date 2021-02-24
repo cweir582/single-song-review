@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "draft_reviews",
+  "info": {
+    "name": "DraftReview"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true
+  },
+  "attributes": {
+    "song": {
+      "model": "song",
+      "via": "review"
+    },
+    "introduction": {
+      "type": "text",
+      "required": true
+    },
+    "like": {
+      "type": "text",
+      "required": true
+    },
+    "dontLike": {
+      "type": "text",
+      "required": true
+    },
+    "opinion": {
+      "type": "text",
+      "required": true
+    },
+    "forfansof": {
+      "type": "text",
+      "required": true
+    },
+    "shouldtheylistenmore": {
+      "type": "text",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "songreview",
+        "hellreview"
+      ],
+      "default": "hellreview"
+    },
+    "sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "user": {
+      "plugin": "users-permissions",
+      "model": "user",
+      "via": "draft_review"
+    }
+  }
+}
