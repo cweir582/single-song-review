@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/monthly-vinyl-draw",
+      "handler": "monthly-vinyl-draw.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/monthly-vinyl-draw",
+      "handler": "monthly-vinyl-draw.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/monthly-vinyl-draw",
+      "handler": "monthly-vinyl-draw.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

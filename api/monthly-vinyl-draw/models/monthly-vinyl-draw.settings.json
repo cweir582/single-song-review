@@ -1,0 +1,36 @@
+{
+  "kind": "singleType",
+  "collectionName": "monthly_vinyl_draws",
+  "info": {
+    "name": "MonthlyVinylDraw",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "album_name": {
+      "type": "string"
+    },
+    "streaming_link": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "image": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    }
+  }
+}
