@@ -26,6 +26,9 @@
     "referred": {
       "type": "integer"
     },
+    "refBy": {
+      "type": "string"
+    },
     "email": {
       "type": "email"
     },

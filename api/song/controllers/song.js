@@ -25,6 +25,7 @@ module.exports = {
             'art-' + data.artist_name.slice(0, 3) +
             crypto.randomBytes(6).toString("hex"),
           referred: 0,
+          refBy: data.contact_email,
           confirmationToken: token,
           confirm: false,
         };
@@ -33,7 +34,7 @@ module.exports = {
           to: data.contact_email,
           from: "hi@asinglesongreview.com",
           replyTo: "hi@asinglesongreview.com",
-          subject: "Confirm you email",
+          subject: "Confirm your email",
           text:
             "Please confirm your email using this link " +
             process.env.FRONTEND_URL +

@@ -1,6 +1,6 @@
 const { parseMultipartData, sanitizeEntity } = require("strapi-utils");
 const fetch = require("node-fetch");
-const crypto = require('crypto');
+const crypto = require("crypto");
 const stripe = require("stripe")(process.env.STRIPE_SK);
 
 async function subscribe(email, hellreview = false, referral, referred = 0) {
@@ -9,13 +9,19 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
   const tokenDoc = await strapi.query("access-token").findOne();
   const token = tokenDoc.token;
 
-  const contactInfo = encodeURIComponent(JSON.stringify({"Contact Email": email, "Referral": referral, "Referred": referred }));
+  const contactInfo = encodeURIComponent(
+    JSON.stringify({
+      "Contact Email": email,
+      Referral: referral,
+      Referred: referred,
+    })
+  );
 
   // return;
 
-  const uri = hellreview ? `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
-  : `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
-
+  const uri = hellreview
+    ? `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/addlistsubscribersinbulk?listkey=${LIST_HR}&resfmt=JSON&emailids=${email}`
+    : `https://campaigns.${ZOHO_BASE_URI}/api/v1.1/json/listsubscribe?resfmt=JSON&listkey=${LIST_SSR}&contactinfo=${contactInfo}`;
 
   const res = await fetch(uri, {
     method: "POST",
@@ -25,10 +31,9 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
     },
   });
 
-
   let data = await res.json();
 
-  console.log(data)
+  console.log(data);
 
   if (data.Code === "1007") {
     const { CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN } = process.env;
@@ -46,10 +51,9 @@ async function subscribe(email, hellreview = false, referral, referred = 0) {
 
     console.log(accessToken);
 
-    const doc = await strapi.query('access-token').update(
-      { token },
-      { token:  accessToken.access_token}
-    );
+    const doc = await strapi
+      .query("access-token")
+      .update({ token }, { token: accessToken.access_token });
 
     return await subscribe(email, hellreview);
   }
@@ -70,7 +74,8 @@ module.exports = {
 
   async create(ctx) {
     console.log("Hi");
-    let entity, success = false;
+    let entity,
+      success = false;
     if (ctx.is("multipart")) {
       const { data, files } = parseMultipartData(ctx);
       entity = await strapi.services.subscriber.create(data, { files });
@@ -78,8 +83,8 @@ module.exports = {
       try {
         const { ref, email } = JSON.parse(ctx.request.body);
 
-        const referralCode = 'sub-' + email.slice(0, 3) +
-        crypto.randomBytes(6).toString("hex");
+        const referralCode =
+          "sub-" + email.slice(0, 3) + crypto.randomBytes(6).toString("hex");
 
         // return console.log(referralCode);
 
@@ -90,58 +95,80 @@ module.exports = {
         // console.log(JSON.parse(ctx.request.body));
 
         if (ref) {
-          if(ref.startsWith('sub-')){
+          if (ref.startsWith("sub-")) {
             const subcriber = await strapi
               .query("subscriber")
               .findOne({ referral: ref });
 
-              await subscribe(subcriber.email, false, subcriber.referral, subcriber.referred + 1);
+            await subscribe(
+              subcriber.email,
+              false,
+              subcriber.referral,
+              subcriber.referred + 1
+            );
 
-            const milestone = await strapi.query("milestone").findOne({ min_referral: subcriber.referred + 1 });
+            const milestone = await strapi
+              .query("milestone")
+              .findOne({ min_referral: subcriber.referred + 1 });
 
             await strapi.query("subscriber").update(
               { id: subcriber.id },
               {
                 referred: subcriber.referred + 1,
                 milestone: milestone ? milestone : subcriber.milestone,
-                rewarded: milestone ? false : subcriber.rewarded
+                rewarded: milestone ? false : subcriber.rewarded,
               }
             );
-          }else if(ref.startsWith('art-')) {
+          } else if (ref.startsWith("art-")) {
             const artist = await strapi
               .query("artist")
               .findOne({ referral: ref });
 
-            const milestone = await strapi.query("milestone").findOne({ min_referral: artist.referred + 1 });
-
             await strapi.query("artist").update(
               { id: artist.id },
               {
-                referred: artist.referred + 1
+                referred: artist.referred + 1,
               }
             );
+
+            const subcriber = await strapi
+              .query("subscriber")
+              .findOne({ email: artist.refBy });
+
+            const milestone = await strapi
+              .query("milestone")
+              .findOne({ min_referral: subcriber.referred + 1 });
+
+            await strapi.query("subscriber").update(
+              { email: artist.refBy },
+              {
+                referred: subcriber.referred + 1,
+                milestone: milestone ? milestone : subcriber.milestone,
+                rewarded: milestone ? false : subcriber.rewarded,
+              }
+            );
+
           }
-
-
         }
 
         const subs = await strapi.query("subscriber").findOne({ email });
 
-        if(!subs) {
+        if (!subs) {
           entity = await strapi.services.subscriber.create({
             email,
-            referral: referralCode
+            referral: referralCode,
           });
         }
 
         success = true;
-
       } catch (error) {
         console.log(error);
         console.log("Oh no!");
       }
     }
-    return sanitizeEntity(success || entity, { model: strapi.models.subscriber });
+    return sanitizeEntity(success || entity, {
+      model: strapi.models.subscriber,
+    });
   },
 
   async referral(ctx) {
@@ -149,7 +176,9 @@ module.exports = {
 
     console.log(token);
 
-    const entity = await strapi.services.subscriber.findOne({ referral: token	});
+    const entity = await strapi.services.subscriber.findOne({
+      referral: token,
+    });
     return sanitizeEntity(entity, { model: strapi.models.subscriber });
   },
 
@@ -157,29 +186,33 @@ module.exports = {
   async hellReview(ctx) {
     let subscriber;
     const { email } = JSON.parse(ctx.request.body);
-    const token = crypto.randomBytes(64).toString('hex');
-
+    const token = crypto.randomBytes(64).toString("hex");
 
     try {
-      const alreadySubscribed = await strapi.query('subscriber').findOne({ email });
+      const alreadySubscribed = await strapi
+        .query("subscriber")
+        .findOne({ email });
       if (alreadySubscribed) {
-        subscriber = await strapi.query('subscriber').update(
-          { id: alreadySubscribed.id },
-          { hr_token: token}
-        );
-      }else {
-        subscriber = await strapi.query('subscriber').create({
+        subscriber = await strapi
+          .query("subscriber")
+          .update({ id: alreadySubscribed.id }, { hr_token: token });
+      } else {
+        subscriber = await strapi.query("subscriber").create({
           email,
-          hr_token: token
+          hr_token: token,
         });
       }
 
-      await strapi.plugins['email'].services.email.send({
+      await strapi.plugins["email"].services.email.send({
         to: email,
-        from: 'hi@asinglesongreview.com',
-        replyTo: 'hi@asinglesongreview.com',
-        subject: 'Confirm you email',
-        text: 'Please confirm your email using this link ' + process.env.FRONTEND_URL + '/hell-review/confirmed?token=' + token,
+        from: "hi@asinglesongreview.com",
+        replyTo: "hi@asinglesongreview.com",
+        subject: "Confirm you email",
+        text:
+          "Please confirm your email using this link " +
+          process.env.FRONTEND_URL +
+          "/hell-review/confirmed?token=" +
+          token,
       });
     } catch (error) {
       console.log(error);
@@ -191,13 +224,15 @@ module.exports = {
 
   // Check HR token for email confirmation
   async checkToken(ctx) {
-    const {token} = ctx.params;
+    const { token } = ctx.params;
 
     console.log(token);
 
     let subscriber;
     try {
-      subscriber = await strapi.query('subscriber').findOne({ hr_token: token });
+      subscriber = await strapi
+        .query("subscriber")
+        .findOne({ hr_token: token });
     } catch (error) {
       console.log("Oh no!");
     }
@@ -211,21 +246,24 @@ module.exports = {
     const { token } = ctx.params;
 
     try {
+      subscriber = await strapi
+        .query("subscriber")
+        .findOne({ hr_confirm: token });
 
-    subscriber = await strapi.query('subscriber').findOne({ hr_confirm: token });
+      const session = await stripe.checkout.sessions.retrieve(
+        subscriber.hr_sessionid
+      );
+      const data = await subscribe(subscriber.email, true);
 
-    const session = await stripe.checkout.sessions.retrieve(subscriber.hr_sessionid);
-    const data = await subscribe(subscriber.email, true);
-
-    await strapi.query("subscriber").update(
-      { id: subscriber.id  },
-      {
-        hr_confirm: null,
-        hr_token: null,
-        hellreview: true,
-        hr_subscriptionid: session.subscription
-      }
-    );
+      await strapi.query("subscriber").update(
+        { id: subscriber.id },
+        {
+          hr_confirm: null,
+          hr_token: null,
+          hellreview: true,
+          hr_subscriptionid: session.subscription,
+        }
+      );
     } catch (error) {
       console.log(error);
       console.log("Oh no!");
@@ -237,26 +275,30 @@ module.exports = {
   async verifyHRUnsubEmail(ctx) {
     let subscriber;
     const { email } = JSON.parse(ctx.request.body);
-    const token = crypto.randomBytes(64).toString('hex');
-
+    const token = crypto.randomBytes(64).toString("hex");
 
     try {
-      const alreadySubscribed = await strapi.query('subscriber').findOne({ email });
+      const alreadySubscribed = await strapi
+        .query("subscriber")
+        .findOne({ email });
 
-      if(!alreadySubscribed && !alreadySubscribed.hr_sessionid) throw new Error("Not subscribed");
+      if (!alreadySubscribed && !alreadySubscribed.hr_sessionid)
+        throw new Error("Not subscribed");
 
-        subscriber = await strapi.query('subscriber').update(
-          { id: alreadySubscribed.id },
-          { hr_confirm: token}
-        );
+      subscriber = await strapi
+        .query("subscriber")
+        .update({ id: alreadySubscribed.id }, { hr_confirm: token });
 
-
-      await strapi.plugins['email'].services.email.send({
+      await strapi.plugins["email"].services.email.send({
         to: email,
-        from: 'hi@asinglesongreview.com',
-        replyTo: 'hi@asinglesongreview.com',
-        subject: 'Confirm you email',
-        text: 'Please confirm your email using this link ' + process.env.FRONTEND_URL + '/hell-review/unsubscribe?confirm=' + token,
+        from: "hi@asinglesongreview.com",
+        replyTo: "hi@asinglesongreview.com",
+        subject: "Confirm you email",
+        text:
+          "Please confirm your email using this link " +
+          process.env.FRONTEND_URL +
+          "/hell-review/unsubscribe?confirm=" +
+          token,
       });
     } catch (error) {
       console.log(error);
@@ -269,16 +311,16 @@ module.exports = {
   async verifyUser(ctx) {
     const body = JSON.parse(ctx.request.body);
 
-    const res = await fetch('https://www.google.com/recaptcha/api/siteverify', {
-      method: 'POST',
+    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+      method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${body}`
-    })
+      body: `secret=${process.env.RECAPTCHA_SECRET}&response=${body}`,
+    });
 
     const data = await res.json();
 
-    return { data }
-  }
+    return { data };
+  },
 };
